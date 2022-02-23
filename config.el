@@ -43,15 +43,18 @@
 (key-chord-define evil-insert-state-map "fd" 'evil-normal-state)
 
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
-(evil-define-key 'visual 'global "s" 'evil-surround-region)
-(evil-define-key 'insert 'global "\C-d" 'delete-forward-char)
-(evil-define-key 'normal 'global "[l" #'previous-error)
-(evil-define-key 'normal 'global "]l" #'next-error)
-(evil-define-key 'insert 'global "\C-k" #'kill-line)
-(evil-define-key 'insert 'global "\C-y" #'yank)
+(map! :v "s" #'evil-surround-region
+      :n "[l" #'previous-error
+      :n "]l" #'next-error
+      :i "\C-d" #'delete-forward-char
+      :i "\C-k" #'kill-line
+      :i "\C-y" #'yank)
+
+(map! :leader [tab] #'evil-switch-to-windows-last-buffer)
+(map! :m [tab] 'nil)
 
 ;; open terminal
-(defun urxvt () (interactive) (shell-command "urxvt"))
+(defun urxvt () (interactive) (shell-command "urxvt > /dev/null 2>&1 & disown"))
 (defun projectile-urxvt () (interactive)
        (let ((default-directory (projectile-acquire-root))) (urxvt)))
 (map! :leader "\"" #'urxvt)
@@ -59,5 +62,14 @@
 
 (map! :mode 'c++-mode :localleader "=" #'eglot-format)
 (map! :mode 'c++-mode :localleader "o" #'projectile-find-other-file)
-(setq flycheck-disabled-checkers '(c/c++-clang c/c++-gcc))
+(setq flycheck-disabled-checkers '(c/c++-clang c/c++-gcc python-mypy))
 (map! :leader "SPC" #'execute-extended-command)
+
+(after! cc-mode (setq c-basic-offset 2))
+
+;; formatter
+(setq +format-with-lsp nil)
+(setq-hook! 'python-mode-hook +format-with 'black)
+
+(defun ipdb () (interactive) (insert "import ipdb; ipdb.set_trace()"))
+(map! :mode 'python-mode :localleader "d b" #'ipdb)
