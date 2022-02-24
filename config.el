@@ -19,6 +19,7 @@
 (window-numbering-mode t)
 
 (map! :leader "w /" #'split-window-right)
+(map! :leader "w _" #'split-window-below)
 (map! :leader "w m" #'delete-other-windows)
 (map! :leader "1" #'select-window-1)
 (map! :leader "2" #'select-window-2)
@@ -32,6 +33,7 @@
 (map! :leader "0" #'select-window-0)
 
 ;; tab
+(setq-default tab-always-indent t)
 (map! "C-}" #'centaur-tabs-forward)
 (map! "C-{" #'centaur-tabs-backward)
 (map! "C-M-}" #'centaur-tabs-move-current-tab-to-right)
