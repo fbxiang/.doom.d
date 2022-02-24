@@ -54,6 +54,7 @@
 
 (map! :leader [tab] #'evil-switch-to-windows-last-buffer)
 (map! :m [tab] 'nil)
+(map! :leader "e e" #'evil-multiedit-match-all)
 
 ;; open terminal
 (defun urxvt () (interactive) (shell-command "urxvt > /dev/null 2>&1 & disown"))
