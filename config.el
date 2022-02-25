@@ -63,7 +63,7 @@
 (map! :leader "\"" #'urxvt)
 (map! :leader "p \"" #'projectile-urxvt)
 
-(map! :mode 'c++-mode :localleader "=" #'eglot-format)
+(map! :n ",=" #'+format/region-or-buffer)
 (map! :mode 'c++-mode :localleader "o" #'projectile-find-other-file)
 (setq flycheck-disabled-checkers '(c/c++-clang c/c++-gcc python-mypy))
 (map! :leader "SPC" #'execute-extended-command)
