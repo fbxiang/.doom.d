@@ -14,6 +14,7 @@
 ;; https://github.com/raxod502/straight.el#the-recipe-format
 (package! window-numbering)
 (package! key-chord)
+(package! ztree)
 
 ;; If the package you are trying to install does not contain a PACKAGENAME.el
 ;; file, or is located in a subdirectory of the repo, you'll need to specify

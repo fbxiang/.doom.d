@@ -5,8 +5,8 @@
 (setq user-full-name "FX"
       user-mail-address "fxiang@eng.ucsd.edu")
 
-(setq doom-font (font-spec :family "Source Code Pro" :size 13)
-      doom-variable-pitch-font (font-spec :family "Source Code Pro" :size 14))
+(setq doom-font (font-spec :family "Source Code Pro" :size 18)
+      doom-variable-pitch-font (font-spec :family "Source Code Pro" :size 19))
 
 (setq doom-theme 'doom-one)
 (setq display-line-numbers-type 'relative)
@@ -76,3 +76,80 @@
 
 (defun ipdb () (interactive) (insert "import ipdb; ipdb.set_trace()"))
 (map! :mode 'python-mode :localleader "d b" #'ipdb)
+
+;; (after! anaconda-mode
+;;   (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/warp"))
+
+(defun portfolio-move-cv (plist)
+  (copy-file "~/CV/CV.pdf" "~/source/portfolio/org/CV.pdf" 't)
+  )
+
+(defun portfolio-compile-jekyll (plist)
+  (let ((default-directory "~/source/portfolio/jekyll"))
+    (shell-command "bundle exec jekyll build"))
+  )
+
+(setq org-publish-project-alist
+      '(
+        (
+         "portfolio-org"
+         :base-directory "~/source/portfolio/org/"
+         :base-extension "org"
+         :publishing-directory "~/source/portfolio/jekyll/"
+         :recursive 't
+         :publishing-function org-html-publish-to-html
+         :body-only 't
+         :headline-levels 4
+         )
+        (
+         "portfolio-attachment"
+         :base-directory "~/source/portfolio/org/"
+         :preparation-function portfolio-move-cv
+         :base-extension "yml\\|html\\|scss\\|css\\|js\\|png\\|gif\\|jpg\\|pdf\\|mp3\\|ogg\\|swf"
+         :publishing-function org-publish-attachment
+         :publishing-directory "~/source/portfolio/jekyll/"
+         :recursive 't
+         )
+        (
+         "portfolio-server"
+         :base-directory "~/source/portfolio/jekyll/_site/"
+         :base-extension any
+         :preparation-function portfolio-compile-jekyll
+         :publishing-directory "/ssh:aws:/home/ubuntu/portfolio/"
+         :publishing-function org-publish-attachment
+         :recursive 't
+         )
+        (
+         "portfolio-all"
+         :components ("portfolio-org" "portfolio-attachment" "portfolio-server")
+         )
+
+        (
+         "blog-org"
+         :base-directory "~/blog/org/"
+         :base-extension "org"
+         :publishing-directory "~/blog/jekyll/"
+         :recursive 't
+         :publishing-function org-html-publish-to-html
+         :body-only 't
+         :headline-levels 4
+         )
+        (
+         "blog-attachment"
+         :base-directory "~/blog/org/_posts/assets/"
+         :base-extension any
+         :publishing-function org-publish-attachment
+         :publishing-directory "~/blog/jekyll/assets"
+         :recursive 't
+         )
+        (
+         "blog-all"
+         :components ("blog-org" "blog-attachment")
+         )
+        )
+      )
+
+(set-eglot-client! 'cc-mode '("ccls" "--init={'{\"clang\":{\"extraArgs\": [\"--gcc-toolchain=/usr\"]}}'"))
+(setq grip-preview-use-webkit t)
+
+(setq ztree-diff-filter-list '("^\\." "^__pycache__$"))
