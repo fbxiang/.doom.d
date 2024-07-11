@@ -5,10 +5,18 @@
 (setq user-full-name "FX"
       user-mail-address "fxiang@eng.ucsd.edu")
 
-(setq doom-font (font-spec :family "Source Code Pro" :size 18)
-      doom-variable-pitch-font (font-spec :family "Source Code Pro" :size 19))
+(let* ((dpi
+        (if (display-graphic-p)
+            (round (/ (display-pixel-height)
+                      (/ (display-mm-height) 25.4))) 96))
+       (font-size (round(/ dpi 8))))
+  (setq doom-font (font-spec :family "Source Code Pro" :size (+ font-size 1))
+        doom-unicode-font (font-spec :family "Source Code Pro For Powerline" :size font-size)
+        doom-variable-pitch-font (font-spec :family "Source Code Pro" :size font-size))
+  )
 
-(setq doom-theme 'doom-one)
+;; (setq doom-theme 'doom-one)
+(setq doom-theme 'doom-horizon)
 (setq display-line-numbers-type 'relative)
 (setq org-directory "~/org/")
 (setq doom-localleader-key ",")
@@ -39,15 +47,12 @@
 (map! "C-M-}" #'centaur-tabs-move-current-tab-to-right)
 (map! "C-M-{" #'centaur-tabs-move-current-tab-to-left)
 
-;; evil keys
-(require 'key-chord)
-(key-chord-mode t)
-(key-chord-define evil-insert-state-map "fd" 'evil-normal-state)
+(after! evil-escape (setq evil-escape-key-sequence "fd"))
 
 (remove-hook 'doom-first-input-hook #'evil-snipe-mode)
 (map! :v "s" #'evil-surround-region
-      :n "[l" #'previous-error
-      :n "]l" #'next-error
+      :n "[l" #'flycheck-previous-error
+      :n "]l" #'flycheck-next-error
       :i "\C-d" #'delete-forward-char
       :i "\C-k" #'kill-line
       :i "\C-y" #'yank)
@@ -71,14 +76,11 @@
 (after! cc-mode (setq c-basic-offset 2))
 
 ;; formatter
-(setq +format-with-lsp nil)
+;; (setq +format-with-lsp nil)
 (setq-hook! 'python-mode-hook +format-with 'black)
 
 (defun ipdb () (interactive) (insert "import ipdb; ipdb.set_trace()"))
 (map! :mode 'python-mode :localleader "d b" #'ipdb)
-
-;; (after! anaconda-mode
-;;   (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/warp"))
 
 (defun portfolio-move-cv (plist)
   (copy-file "~/CV/CV.pdf" "~/source/portfolio/org/CV.pdf" 't)
@@ -149,7 +151,80 @@
         )
       )
 
-(set-eglot-client! 'cc-mode '("ccls" "--init={'{\"clang\":{\"extraArgs\": [\"--gcc-toolchain=/usr\"]}}'"))
 (setq grip-preview-use-webkit t)
 
 (setq ztree-diff-filter-list '("^\\." "^__pycache__$"))
+
+(setq +latex-viewers '(evince))
+
+(after! ccls
+  (setq ccls-initialization-options '(:index (:comments 2) :completion (:detailedLabel t)))
+  (set-lsp-priority! 'ccls 2)) ; optional as ccls is the default in Doom
+
+(setq lsp-lens-enable nil)
+
+(add-to-list 'auto-mode-alist '("\\.cu\\'" . c++-mode))
+(add-to-list 'auto-mode-alist '("\\.cuh\\'" . c++-mode))
+
+(add-to-list 'auto-mode-alist '("\\.rchit\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rahit\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rgen\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rmiss\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rint\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode))
+
+(setq TeX-view-evince-keep-focus t)
+
+(defconst my-cc-style
+  '("linux"
+    (c-offsets-alist . ((innamespace . [0])))))
+(c-add-style "my-cc-style" my-cc-style)
+(add-hook! (c-mode c++-mode)
+  (setq c-default-style "my-cc-style"))
+
+;; the following changes cursor shape in urxvt temrinal
+(defun test-send-str-to-terminal (str)
+  (unless (display-graphic-p) (send-string-to-terminal str)))
+(add-hook 'evil-insert-state-entry-hook (lambda () (test-send-str-to-terminal "\033[6 q")))
+(add-hook 'evil-insert-state-exit-hook (lambda () (test-send-str-to-terminal "\033[2 q")))
+
+;; put protected variables (_) to the end
+(defun python--private-lessp (x y)
+  (cond
+   ((and (string-prefix-p "_" x)
+         (not (string-prefix-p "_" y))) nil)
+   ((and (string-prefix-p "_" y)
+         (not (string-prefix-p "_" x))) t)
+   (t (string-lessp x y))))
+(defun company-transform-python (candidates)
+  (seq-sort-by 'company-strip-prefix 'python--private-lessp
+               candidates))
+(add-hook 'python-mode-hook
+          (lambda () (setq-local company-transformers '(company-transform-python company-sort-by-occurrence))))
+
+(map! :mode 'python-mode :prefix "C-c" "'" #'+python/open-ipython-repl)
+
+(map! :leader "p '" #'+vterm/toggle)
+(map! :leader "'" (lambda (_) (interactive "P") (+vterm/toggle ".")))
+
+(defun add-to-thing-at-point () (interactive)
+       (let ((number (thing-at-point 'number))
+             (bound (bounds-of-thing-at-point 'number)))
+         (delete-region (car bound) (cdr bound))
+         (insert (number-to-string (+ number current-prefix-arg)))))
+(map! :leader "+" #'add-to-thing-at-point)
+
+(setq flycheck-indication-mode nil)
+
+(add-hook 'lsp-treemacs-generic-mode-hook 'centaur-tabs-local-mode)
+
+(after! anaconda-mode
+  (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/warp")
+  )
+
+(add-hook 'vue-mode-hook #'lsp!)
+(setq mmm-submode-decoration-level 0)
+
+(setq typescript-indent-level 2)
+(setq css-indent-offset 2)
+

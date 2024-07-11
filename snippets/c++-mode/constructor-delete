@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: constructor-delete
+# uuid:
+# key: trigger-key
+# condition: t
+# --
+
+${1:ClassName}($1 const &) = delete;
+$1 &operator=($1 const &) = delete;
+$1($1 const &&) = ${2:delete};
+$1 &operator=($1 const &&) = $2;
