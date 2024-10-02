@@ -218,13 +218,37 @@
 
 (add-hook 'lsp-treemacs-generic-mode-hook 'centaur-tabs-local-mode)
 
+;; ROS
 (after! anaconda-mode
   (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/warp")
-  )
+  (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/ros2/src/install/rclpy/lib/python3.12/site-packages")
+  (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/ros2/src/install/std_msgs/lib/python3.12/site-packages")
+  (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/ros2/src/install/sensor_msgs/lib/python3.12/site-packages")
+  (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/ros2/src/install/rosgraph_msgs/lib/python3.12/site-packages")
+  (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/ros2/src/install/trajectory_msgs/lib/python3.12/site-packages")
+  (add-to-list 'python-shell-extra-pythonpaths "/home/fx/source/ros2/src/install/control_msgs/lib/python3.12/site-packages"))
 
+;; web dev
 (add-hook 'vue-mode-hook #'lsp!)
 (setq mmm-submode-decoration-level 0)
-
 (setq typescript-indent-level 2)
 (setq css-indent-offset 2)
 
+(add-hook 'LaTeX-mode-hook (lambda () (setq TeX-master (concat (projectile-project-root) "main.tex"))))
+
+(defun dragon-drop () (interactive) (shell-command (concat "dragon-drop " (shell-quote-argument (buffer-file-name))) ))
+
+;; (use-package! gptel)
+;; (gptel-make-ollama "Ollama"
+;;   :host "localhost:11434"
+;;   :stream t
+;;   :models '("phi3:medium"))
+;; (setq
+;;  gptel-model "phi3:medium"
+;;  gptel-backend (gptel-make-ollama "Ollama"
+;;                  :host "localhost:11434"
+;;                  :stream t
+;;                  :models '("phi3:medium")))
+
+
+(setq lsp-rust-features ["ros" "rerun"])
