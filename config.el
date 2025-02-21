@@ -9,7 +9,7 @@
         (if (display-graphic-p)
             (round (/ (display-pixel-height)
                       (/ (display-mm-height) 25.4))) 96))
-       (font-size (round(/ dpi 8))))
+       (font-size (round(/ dpi 6))))
   (setq doom-font (font-spec :family "Source Code Pro" :size (+ font-size 1))
         doom-unicode-font (font-spec :family "Source Code Pro For Powerline" :size font-size)
         doom-variable-pitch-font (font-spec :family "Source Code Pro" :size font-size))
@@ -62,13 +62,15 @@
 (map! :leader "e e" #'evil-multiedit-match-all)
 
 ;; open terminal
-(defun urxvt () (interactive) (shell-command "urxvt > /dev/null 2>&1 & disown"))
-(defun projectile-urxvt () (interactive)
-       (let ((default-directory (projectile-acquire-root))) (urxvt)))
-(map! :leader "\"" #'urxvt)
-(map! :leader "p \"" #'projectile-urxvt)
+(defun kitty () (interactive) (shell-command "kitty > /dev/null 2>&1 & disown"))
+(defun projectile-kitty () (interactive)
+       (let ((default-directory (projectile-acquire-root))) (kitty)))
+(map! :leader "\"" #'kitty)
+(map! :leader "p \"" #'projectile-kitty)
 
-(map! :n ",=" #'+format/region-or-buffer)
+(defun my-format-buffer () (interactive)
+       (if lsp-mode (lsp-format-buffer) (+format/region-or-buffer)))
+(map! :n ",=" #'my-format-buffer)
 (map! :mode 'c++-mode :localleader "o" #'projectile-find-other-file)
 (setq flycheck-disabled-checkers '(c/c++-clang c/c++-gcc python-mypy))
 (map! :leader "SPC" #'execute-extended-command)
@@ -173,6 +175,9 @@
 (add-to-list 'auto-mode-alist '("\\.rint\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode))
 
+(add-to-list 'auto-mode-alist '("\\.jsonc\\'" . json-mode))
+
+
 (setq TeX-view-evince-keep-focus t)
 
 (defconst my-cc-style
@@ -182,7 +187,7 @@
 (add-hook! (c-mode c++-mode)
   (setq c-default-style "my-cc-style"))
 
-;; the following changes cursor shape in urxvt temrinal
+;; the following changes cursor shape in temrinal
 (defun test-send-str-to-terminal (str)
   (unless (display-graphic-p) (send-string-to-terminal str)))
 (add-hook 'evil-insert-state-entry-hook (lambda () (test-send-str-to-terminal "\033[6 q")))
@@ -196,11 +201,11 @@
    ((and (string-prefix-p "_" y)
          (not (string-prefix-p "_" x))) t)
    (t (string-lessp x y))))
-(defun company-transform-python (candidates)
-  (seq-sort-by 'company-strip-prefix 'python--private-lessp
-               candidates))
-(add-hook 'python-mode-hook
-          (lambda () (setq-local company-transformers '(company-transform-python company-sort-by-occurrence))))
+;; (defun company-transform-python (candidates)
+;;   (seq-sort-by 'company-strip-prefix 'python--private-lessp
+;;                candidates))
+;; (add-hook 'python-mode-hook
+;;           (lambda () (setq-local company-transformers '(company-transform-python company-sort-by-occurrence))))
 
 (map! :mode 'python-mode :prefix "C-c" "'" #'+python/open-ipython-repl)
 
@@ -238,17 +243,22 @@
 
 (defun dragon-drop () (interactive) (shell-command (concat "dragon-drop " (shell-quote-argument (buffer-file-name))) ))
 
-;; (use-package! gptel)
-;; (gptel-make-ollama "Ollama"
-;;   :host "localhost:11434"
-;;   :stream t
-;;   :models '("phi3:medium"))
-;; (setq
-;;  gptel-model "phi3:medium"
-;;  gptel-backend (gptel-make-ollama "Ollama"
-;;                  :host "localhost:11434"
-;;                  :stream t
-;;                  :models '("phi3:medium")))
+(map! :n "gh" #'lsp-ui-doc-show)
 
+;; do not watch files in .gitignore
+(defun ++git-ignore-p (path)
+  (let* (; trailing / breaks git check-ignore if path is a symlink:
+         (path (directory-file-name path))
+         (default-directory (file-name-directory path))
+         (relpath (file-name-nondirectory path))
+         (cmd (format "git check-ignore '%s'" relpath))
+         (status (call-process-shell-command cmd)))
+    (eq status 0)))
+(defun ++lsp--path-is-watchable-directory-a
+    (fn path dir ignored-directories)
+  (and (not (++git-ignore-p (f-join dir path)))
+       (funcall fn path dir ignored-directories)))
+(advice-add 'lsp--path-is-watchable-directory
+            :around #'++lsp--path-is-watchable-directory-a)
 
-(setq lsp-rust-features ["ros" "rerun"])
+;; (setq lsp-rust-features ["assimp"])
