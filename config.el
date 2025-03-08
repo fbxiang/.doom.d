@@ -3,7 +3,7 @@
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name "FX"
-      user-mail-address "fxiang@eng.ucsd.edu")
+      user-mail-address "fxiang@ucsd.edu")
 
 (let* ((dpi
         (if (display-graphic-p)
@@ -77,15 +77,15 @@
 
 (after! cc-mode (setq c-basic-offset 2))
 
+
 ;; formatter
-;; (setq +format-with-lsp nil)
 (setq-hook! 'python-mode-hook +format-with 'black)
 
 (defun ipdb () (interactive) (insert "import ipdb; ipdb.set_trace()"))
 (map! :mode 'python-mode :localleader "d b" #'ipdb)
 
 (defun portfolio-move-cv (plist)
-  (copy-file "~/CV/CV.pdf" "~/source/portfolio/org/CV.pdf" 't)
+  (copy-file "~/CV/main.pdf" "~/source/portfolio/org/CV.pdf" 't)
   )
 
 (defun portfolio-compile-jekyll (plist)
