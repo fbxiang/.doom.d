@@ -15,7 +15,13 @@
 ;;;###autoload
 (define-derived-mode slang-mode c-mode "Slang"
   "Major mode for editing Slang shader files."
-  )
+  (font-lock-add-keywords
+   nil
+   '(("\\<\\(cbuffer\\|numthreads\\|SV_GroupThreadID\\|SV_DispatchThreadID\\)" . font-lock-keyword-face)
+     ("\\<\\(uint2\\|uint3\\|uint4\\|int2\\|int3\\|int4\\|float2\\|float3\\|float4\\)" . font-lock-type-face)
+     ("\\<\\w+\\s-+\\(\\w+\\)\\s-*:" 1 font-lock-variable-name-face t)
+     )
+   'append))
 
 ;;;###autoload
 (progn (add-to-list 'auto-mode-alist '("\\.slang\\'" . slang-mode))

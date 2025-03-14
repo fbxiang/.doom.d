@@ -8,7 +8,7 @@
 (let* ((dpi
         (if (display-graphic-p)
             (round (/ (display-pixel-height)
-                      (/ (display-mm-height) 25.4))) 96))
+                      (/ (display-mm-height) 30))) 96))
        (font-size (round(/ dpi 6))))
   (setq doom-font (font-spec :family "Source Code Pro" :size (+ font-size 1))
         doom-unicode-font (font-spec :family "Source Code Pro For Powerline" :size font-size)
@@ -261,4 +261,5 @@
 (advice-add 'lsp--path-is-watchable-directory
             :around #'++lsp--path-is-watchable-directory-a)
 
-;; (setq lsp-rust-features ["assimp"])
+;; (setq lsp-inlay-hint-enable t)
+(setq lsp-rust-features "all")
