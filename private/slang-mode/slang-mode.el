@@ -17,11 +17,13 @@
   "Major mode for editing Slang shader files."
   (font-lock-add-keywords
    nil
-   '(("\\<\\(cbuffer\\|numthreads\\|SV_GroupThreadID\\|SV_DispatchThreadID\\)" . font-lock-keyword-face)
-     ("\\<\\(uint2\\|uint3\\|uint4\\|int2\\|int3\\|int4\\|float2\\|float3\\|float4\\)" . font-lock-type-face)
+   '(("\\<\\(AppendStructuredBuffer\\|asm\\|asm_fragment\\|BlendState\\|break\\|Buffer\\|ByteAddressBuffer\\|case\\|cbuffer\\|centroid\\|class\\|column_major\\|compile\\|compile_fragment\\|CompileShader\\|const\\|continue\\|ComputeShader\\|ConsumeStructuredBuffer\\|default\\|DepthStencilState\\|DepthStencilView\\|discard\\|do\\|DomainShader\\|else\\|export\\|extern\\|for\\|fxgroup\\|GeometryShader\\|groupshared\\|Hullshader\\|if\\|in\\|inline\\|inout\\|InputPatch\\|interface\\|line\\|lineadj\\|linear\\|LineStream\\|matrix\\|namespace\\|nointerpolation\\|noperspective\\|out\\|OutputPatch\\|packoffset\\|pass\\|pixelfragment\\|PixelShader\\|point\\|PointStream\\|precise\\|RasterizerState\\|RenderTargetView\\|return\\|register\\|row_major\\|RWBuffer\\|RWByteAddressBuffer\\|RWStructuredBuffer\\|RWTexture1D\\|RWTexture1DArray\\|RWTexture2D\\|RWTexture2DArray\\|RWTexture3D\\|sample\\|sampler\\|SamplerState\\|SamplerComparisonState\\|shared\\|stateblock\\|stateblock_state\\|static\\|string\\|struct\\|switch\\|StructuredBuffer\\|tbuffer\\|technique\\|technique10\\|technique11\\|texture\\|Texture1D\\|Texture1DArray\\|Texture2D\\|Texture2DArray\\|Texture2DMS\\|Texture2DMSArray\\|Texture3D\\|TextureCube\\|TextureCubeArray\\|typedef\\|triangle\\|triangleadj\\|TriangleStream\\|uniform\\|vector\\|vertexfragment\\|VertexShader\\|void\\|volatile\\|while\\|domain\\|earlydepthstencil\\|instance\\|maxtessfactor\\|numthreads\\|outputcontrolpoints\\|outputtopology\\|partitioning\\|patchconstantfunc\\|SV_DispatchThreadID\\|SV_DomainLocation\\|SV_TessFactor\\|SV_GroupID\\|SV_GroupIndex\\|SV_GroupThreadID\\|SV_GSInstanceID\\|SV_InsideTessFactor\\|SV_OutputControlPointID\\)" . font-lock-keyword-face)
+     ("\\<\\(bool\\|int\\|uint\\|half\\|float\\|double\\|int16_t\\|int32_t\\|int64_t\\|uint16_t\\|uint32_t\\|uint64_t\\|float16_t\\|float32_t\\|float64_t\\)\\([1234]\\|[1234]x[1234]\\)?\\>" . font-lock-type-face)
      ("\\<\\w+\\s-+\\(\\w+\\)\\s-*:" 1 font-lock-variable-name-face t)
      )
    'append))
+
+
 
 ;;;###autoload
 (progn (add-to-list 'auto-mode-alist '("\\.slang\\'" . slang-mode))
